@@ -1,0 +1,1033 @@
+{
+    "num_rows": 5000,
+    "num_columns": 23,
+    "columns": {
+        "student_id": {
+            "dtype": "object",
+            "missing_count": 0,
+            "missing_percent": 0.0,
+            "top_categories": {
+                "S1000": 1,
+                "S4330": 1,
+                "S4337": 1,
+                "S4336": 1,
+                "S4335": 1
+            }
+        },
+        "first_name": {
+            "dtype": "object",
+            "missing_count": 0,
+            "missing_percent": 0.0,
+            "top_categories": {
+                "Maria": 657,
+                "Ahmed": 651,
+                "Ali": 644,
+                "Emma": 628,
+                "Sara": 612
+            }
+        },
+        "last_name": {
+            "dtype": "object",
+            "missing_count": 0,
+            "missing_percent": 0.0,
+            "top_categories": {
+                "Johnson": 868,
+                "Jones": 850,
+                "Davis": 829,
+                "Brown": 825,
+                "Smith": 817
+            }
+        },
+        "email": {
+            "dtype": "object",
+            "missing_count": 0,
+            "missing_percent": 0.0,
+            "top_categories": {
+                "student0@university.com": 1,
+                "student3330@university.com": 1,
+                "student3337@university.com": 1,
+                "student3336@university.com": 1,
+                "student3335@university.com": 1
+            }
+        },
+        "gender": {
+            "dtype": "object",
+            "missing_count": 0,
+            "missing_percent": 0.0,
+            "top_categories": {
+                "Male": 2551,
+                "Female": 2449
+            }
+        },
+        "age": {
+            "dtype": "int64",
+            "missing_count": 0,
+            "missing_percent": 0.0,
+            "numeric_stats": {
+                "mean": 21.0484,
+                "median": 21.0,
+                "min": 18.0,
+                "max": 24.0,
+                "std": 1.9897862422526627,
+                "25%": 19.0,
+                "75%": 23.0
+            },
+            "skewness": -0.0374531826840098,
+            "kurtosis": -1.2355855365661206,
+            "outlier_count": 0,
+            "outlier_bounds": {
+                "lower_bound": 13.0,
+                "upper_bound": 29.0
+            },
+            "histogram": {
+                "bins": [
+                    18.0,
+                    18.6,
+                    19.2,
+                    19.8,
+                    20.4,
+                    21.0,
+                    21.6,
+                    22.2,
+                    22.8,
+                    23.4,
+                    24.0
+                ],
+                "counts": [
+                    682,
+                    705,
+                    0,
+                    671,
+                    0,
+                    753,
+                    732,
+                    0,
+                    734,
+                    723
+                ]
+            }
+        },
+        "department": {
+            "dtype": "object",
+            "missing_count": 0,
+            "missing_percent": 0.0,
+            "top_categories": {
+                "CS": 2022,
+                "Engineering": 1469,
+                "Business": 1006,
+                "Mathematics": 503
+            }
+        },
+        "attendance_(%)": {
+            "dtype": "float64",
+            "missing_count": 0,
+            "missing_percent": 0.0,
+            "numeric_stats": {
+                "mean": 75.461708,
+                "median": 75.725,
+                "min": 50.01,
+                "max": 100.0,
+                "std": 13.610774150551888,
+                "25%": 64.7375,
+                "75%": 86.1825
+            },
+            "skewness": -0.04743609790075821,
+            "kurtosis": -0.954704848596907,
+            "outlier_count": 0,
+            "outlier_bounds": {
+                "lower_bound": 32.569999999999986,
+                "upper_bound": 118.35000000000002
+            },
+            "histogram": {
+                "bins": [
+                    50.01,
+                    55.009,
+                    60.007999999999996,
+                    65.007,
+                    70.006,
+                    75.005,
+                    80.004,
+                    85.003,
+                    90.00200000000001,
+                    95.001,
+                    100.0
+                ],
+                "counts": [
+                    437,
+                    415,
+                    422,
+                    446,
+                    442,
+                    985,
+                    474,
+                    489,
+                    410,
+                    480
+                ]
+            }
+        },
+        "midterm_score": {
+            "dtype": "float64",
+            "missing_count": 0,
+            "missing_percent": 0.0,
+            "numeric_stats": {
+                "mean": 70.326844,
+                "median": 70.50999999999999,
+                "min": 40.0,
+                "max": 99.98,
+                "std": 17.213208523375233,
+                "25%": 55.4575,
+                "75%": 84.97
+            },
+            "skewness": -0.022055400319269187,
+            "kurtosis": -1.1778090876230312,
+            "outlier_count": 0,
+            "outlier_bounds": {
+                "lower_bound": 11.188750000000006,
+                "upper_bound": 129.23874999999998
+            },
+            "histogram": {
+                "bins": [
+                    40.0,
+                    45.998,
+                    51.996,
+                    57.994,
+                    63.992000000000004,
+                    69.99000000000001,
+                    75.988,
+                    81.986,
+                    87.98400000000001,
+                    93.982,
+                    99.98
+                ],
+                "counts": [
+                    494,
+                    458,
+                    496,
+                    494,
+                    513,
+                    500,
+                    527,
+                    527,
+                    477,
+                    514
+                ]
+            }
+        },
+        "final_score": {
+            "dtype": "float64",
+            "missing_count": 0,
+            "missing_percent": 0.0,
+            "numeric_stats": {
+                "mean": 69.64078799999999,
+                "median": 69.735,
+                "min": 40.0,
+                "max": 99.98,
+                "std": 17.238744216429684,
+                "25%": 54.667500000000004,
+                "75%": 84.5
+            },
+            "skewness": 0.01882820444181919,
+            "kurtosis": -1.199961396740713,
+            "outlier_count": 0,
+            "outlier_bounds": {
+                "lower_bound": 9.91875000000001,
+                "upper_bound": 129.24875
+            },
+            "histogram": {
+                "bins": [
+                    40.0,
+                    45.998,
+                    51.996,
+                    57.994,
+                    63.992000000000004,
+                    69.99000000000001,
+                    75.988,
+                    81.986,
+                    87.98400000000001,
+                    93.982,
+                    99.98
+                ],
+                "counts": [
+                    507,
+                    502,
+                    529,
+                    524,
+                    467,
+                    481,
+                    536,
+                    484,
+                    494,
+                    476
+                ]
+            }
+        },
+        "assignments_avg": {
+            "dtype": "float64",
+            "missing_count": 0,
+            "missing_percent": 0.0,
+            "numeric_stats": {
+                "mean": 74.799844,
+                "median": 74.81,
+                "min": 50.0,
+                "max": 99.98,
+                "std": 13.64622661968704,
+                "25%": 63.6875,
+                "75%": 85.57
+            },
+            "skewness": 0.01685756240581805,
+            "kurtosis": -0.9931054759595868,
+            "outlier_count": 0,
+            "outlier_bounds": {
+                "lower_bound": 30.86375000000001,
+                "upper_bound": 118.39374999999998
+            },
+            "histogram": {
+                "bins": [
+                    50.0,
+                    54.998,
+                    59.996,
+                    64.994,
+                    69.992,
+                    74.99000000000001,
+                    79.988,
+                    84.986,
+                    89.98400000000001,
+                    94.982,
+                    99.98
+                ],
+                "counts": [
+                    446,
+                    475,
+                    451,
+                    451,
+                    954,
+                    447,
+                    471,
+                    415,
+                    444,
+                    446
+                ]
+            }
+        },
+        "quizzes_avg": {
+            "dtype": "float64",
+            "missing_count": 0,
+            "missing_percent": 0.0,
+            "numeric_stats": {
+                "mean": 74.910728,
+                "median": 74.695,
+                "min": 50.03,
+                "max": 99.96,
+                "std": 14.504280651637306,
+                "25%": 62.49,
+                "75%": 87.63
+            },
+            "skewness": 0.017547426954527368,
+            "kurtosis": -1.2000986737029666,
+            "outlier_count": 0,
+            "outlier_bounds": {
+                "lower_bound": 24.78000000000001,
+                "upper_bound": 125.33999999999999
+            },
+            "histogram": {
+                "bins": [
+                    50.03,
+                    55.023,
+                    60.016,
+                    65.009,
+                    70.002,
+                    74.995,
+                    79.988,
+                    84.981,
+                    89.97399999999999,
+                    94.967,
+                    99.96
+                ],
+                "counts": [
+                    518,
+                    479,
+                    521,
+                    493,
+                    512,
+                    516,
+                    473,
+                    487,
+                    477,
+                    524
+                ]
+            }
+        },
+        "participation_score": {
+            "dtype": "float64",
+            "missing_count": 0,
+            "missing_percent": 0.0,
+            "numeric_stats": {
+                "mean": 4.980024,
+                "median": 4.955,
+                "min": 0.0,
+                "max": 10.0,
+                "std": 2.890136020443905,
+                "25%": 2.44,
+                "75%": 7.5
+            },
+            "skewness": 0.014938492712630206,
+            "kurtosis": -1.2118751317219663,
+            "outlier_count": 0,
+            "outlier_bounds": {
+                "lower_bound": -5.15,
+                "upper_bound": 15.09
+            },
+            "histogram": {
+                "bins": [
+                    0.0,
+                    1.0,
+                    2.0,
+                    3.0,
+                    4.0,
+                    5.0,
+                    6.0,
+                    7.0,
+                    8.0,
+                    9.0,
+                    10.0
+                ],
+                "counts": [
+                    488,
+                    535,
+                    494,
+                    492,
+                    510,
+                    478,
+                    526,
+                    478,
+                    503,
+                    496
+                ]
+            }
+        },
+        "projects_score": {
+            "dtype": "float64",
+            "missing_count": 0,
+            "missing_percent": 0.0,
+            "numeric_stats": {
+                "mean": 74.92485999999998,
+                "median": 74.98,
+                "min": 50.01,
+                "max": 100.0,
+                "std": 14.42341465806484,
+                "25%": 62.32,
+                "75%": 87.3675
+            },
+            "skewness": -0.002977347799112957,
+            "kurtosis": -1.2095990382422526,
+            "outlier_count": 0,
+            "outlier_bounds": {
+                "lower_bound": 24.748749999999994,
+                "upper_bound": 124.93875000000001
+            },
+            "histogram": {
+                "bins": [
+                    50.01,
+                    55.009,
+                    60.007999999999996,
+                    65.007,
+                    70.006,
+                    75.005,
+                    80.004,
+                    85.003,
+                    90.00200000000001,
+                    95.001,
+                    100.0
+                ],
+                "counts": [
+                    490,
+                    515,
+                    524,
+                    493,
+                    481,
+                    474,
+                    528,
+                    514,
+                    498,
+                    483
+                ]
+            }
+        },
+        "total_score": {
+            "dtype": "float64",
+            "missing_count": 0,
+            "missing_percent": 0.0,
+            "numeric_stats": {
+                "mean": 75.121804,
+                "median": 75.39500000000001,
+                "min": 50.02,
+                "max": 99.99,
+                "std": 14.399941391825232,
+                "25%": 62.835,
+                "75%": 87.6525
+            },
+            "skewness": -0.02238469633213024,
+            "kurtosis": -1.1929168751512256,
+            "outlier_count": 0,
+            "outlier_bounds": {
+                "lower_bound": 25.608749999999993,
+                "upper_bound": 124.87875000000001
+            },
+            "histogram": {
+                "bins": [
+                    50.02,
+                    55.017,
+                    60.014,
+                    65.011,
+                    70.008,
+                    75.005,
+                    80.002,
+                    84.999,
+                    89.996,
+                    94.993,
+                    99.99
+                ],
+                "counts": [
+                    507,
+                    481,
+                    494,
+                    496,
+                    493,
+                    495,
+                    520,
+                    526,
+                    506,
+                    482
+                ]
+            }
+        },
+        "grade": {
+            "dtype": "object",
+            "missing_count": 0,
+            "missing_percent": 0.0,
+            "top_categories": {
+                "A": 1495,
+                "B": 978,
+                "D": 889,
+                "F": 844,
+                "C": 794
+            }
+        },
+        "study_hours_per_week": {
+            "dtype": "float64",
+            "missing_count": 0,
+            "missing_percent": 0.0,
+            "numeric_stats": {
+                "mean": 17.658859999999997,
+                "median": 17.5,
+                "min": 5.0,
+                "max": 30.0,
+                "std": 7.275864288222267,
+                "25%": 11.4,
+                "75%": 24.1
+            },
+            "skewness": 0.0007433558913855831,
+            "kurtosis": -1.2220094424148928,
+            "outlier_count": 0,
+            "outlier_bounds": {
+                "lower_bound": -7.65,
+                "upper_bound": 43.150000000000006
+            },
+            "histogram": {
+                "bins": [
+                    5.0,
+                    7.5,
+                    10.0,
+                    12.5,
+                    15.0,
+                    17.5,
+                    20.0,
+                    22.5,
+                    25.0,
+                    27.5,
+                    30.0
+                ],
+                "counts": [
+                    470,
+                    501,
+                    493,
+                    522,
+                    503,
+                    447,
+                    505,
+                    481,
+                    531,
+                    547
+                ]
+            }
+        },
+        "extracurricular_activities": {
+            "dtype": "int64",
+            "missing_count": 0,
+            "missing_percent": 0.0,
+            "numeric_stats": {
+                "mean": 0.3014,
+                "median": 0.0,
+                "min": 0.0,
+                "max": 1.0,
+                "std": 0.458911930583643,
+                "25%": 0.0,
+                "75%": 1.0
+            },
+            "skewness": 0.8658718963180384,
+            "kurtosis": -1.2507663257689636,
+            "outlier_count": 0,
+            "outlier_bounds": {
+                "lower_bound": -1.5,
+                "upper_bound": 2.5
+            },
+            "histogram": {
+                "bins": [
+                    0.0,
+                    0.1,
+                    0.2,
+                    0.30000000000000004,
+                    0.4,
+                    0.5,
+                    0.6000000000000001,
+                    0.7000000000000001,
+                    0.8,
+                    0.9,
+                    1.0
+                ],
+                "counts": [
+                    3493,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    1507
+                ]
+            }
+        },
+        "internet_access_at_home": {
+            "dtype": "int64",
+            "missing_count": 0,
+            "missing_percent": 0.0,
+            "numeric_stats": {
+                "mean": 0.897,
+                "median": 1.0,
+                "min": 0.0,
+                "max": 1.0,
+                "std": 0.3039892792457972,
+                "25%": 1.0,
+                "75%": 1.0
+            },
+            "skewness": -2.6129794085553035,
+            "kurtosis": 4.829593066883338,
+            "outlier_count": 515,
+            "outlier_bounds": {
+                "lower_bound": 1.0,
+                "upper_bound": 1.0
+            },
+            "histogram": {
+                "bins": [
+                    0.0,
+                    0.1,
+                    0.2,
+                    0.30000000000000004,
+                    0.4,
+                    0.5,
+                    0.6000000000000001,
+                    0.7000000000000001,
+                    0.8,
+                    0.9,
+                    1.0
+                ],
+                "counts": [
+                    515,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    4485
+                ]
+            }
+        },
+        "parent_education_level": {
+            "dtype": "object",
+            "missing_count": 0,
+            "missing_percent": 0.0,
+            "top_categories": {
+                "PhD": 2614,
+                "Bachelor's": 810,
+                "High School": 796,
+                "Master's": 780
+            }
+        },
+        "family_income_level": {
+            "dtype": "object",
+            "missing_count": 0,
+            "missing_percent": 0.0,
+            "top_categories": {
+                "Low": 1983,
+                "Medium": 1973,
+                "High": 1044
+            }
+        },
+        "stress_level_(1_10)": {
+            "dtype": "int64",
+            "missing_count": 0,
+            "missing_percent": 0.0,
+            "numeric_stats": {
+                "mean": 5.4808,
+                "median": 5.0,
+                "min": 1.0,
+                "max": 10.0,
+                "std": 2.8615501138038386,
+                "25%": 3.0,
+                "75%": 8.0
+            },
+            "skewness": 0.014218696539802409,
+            "kurtosis": -1.224197599550831,
+            "outlier_count": 0,
+            "outlier_bounds": {
+                "lower_bound": -4.5,
+                "upper_bound": 15.5
+            },
+            "histogram": {
+                "bins": [
+                    1.0,
+                    1.9,
+                    2.8,
+                    3.7,
+                    4.6,
+                    5.5,
+                    6.4,
+                    7.3,
+                    8.2,
+                    9.1,
+                    10.0
+                ],
+                "counts": [
+                    489,
+                    504,
+                    509,
+                    533,
+                    495,
+                    481,
+                    489,
+                    524,
+                    488,
+                    488
+                ]
+            }
+        },
+        "sleep_hours_per_night": {
+            "dtype": "float64",
+            "missing_count": 0,
+            "missing_percent": 0.0,
+            "numeric_stats": {
+                "mean": 6.4881400000000005,
+                "median": 6.5,
+                "min": 4.0,
+                "max": 9.0,
+                "std": 1.4522834316458912,
+                "25%": 5.2,
+                "75%": 7.7
+            },
+            "skewness": -0.003330573944204303,
+            "kurtosis": -1.2035237130044896,
+            "outlier_count": 0,
+            "outlier_bounds": {
+                "lower_bound": 1.4500000000000002,
+                "upper_bound": 11.45
+            },
+            "histogram": {
+                "bins": [
+                    4.0,
+                    4.5,
+                    5.0,
+                    5.5,
+                    6.0,
+                    6.5,
+                    7.0,
+                    7.5,
+                    8.0,
+                    8.5,
+                    9.0
+                ],
+                "counts": [
+                    486,
+                    512,
+                    480,
+                    476,
+                    489,
+                    539,
+                    466,
+                    528,
+                    471,
+                    553
+                ]
+            }
+        }
+    },
+    "missing_data_overall": {
+        "student_id": 0.0,
+        "first_name": 0.0,
+        "last_name": 0.0,
+        "email": 0.0,
+        "gender": 0.0,
+        "age": 0.0,
+        "department": 0.0,
+        "attendance_(%)": 0.0,
+        "midterm_score": 0.0,
+        "final_score": 0.0,
+        "assignments_avg": 0.0,
+        "quizzes_avg": 0.0,
+        "participation_score": 0.0,
+        "projects_score": 0.0,
+        "total_score": 0.0,
+        "grade": 0.0,
+        "study_hours_per_week": 0.0,
+        "extracurricular_activities": 0.0,
+        "internet_access_at_home": 0.0,
+        "parent_education_level": 0.0,
+        "family_income_level": 0.0,
+        "stress_level_(1_10)": 0.0,
+        "sleep_hours_per_night": 0.0
+    },
+    "duplicate_rows": 0,
+    "duplicate_percentage": 0.0,
+    "correlations": {
+        "age": {
+            "age": 1.0,
+            "attendance_(%)": 0.01,
+            "midterm_score": 0.01,
+            "final_score": -0.02,
+            "assignments_avg": -0.03,
+            "quizzes_avg": 0.01,
+            "participation_score": -0.01,
+            "projects_score": 0.0,
+            "total_score": 0.02,
+            "study_hours_per_week": 0.0,
+            "extracurricular_activities": -0.01,
+            "internet_access_at_home": 0.01,
+            "stress_level_(1_10)": -0.0,
+            "sleep_hours_per_night": -0.01
+        },
+        "attendance_(%)": {
+            "age": 0.01,
+            "attendance_(%)": 1.0,
+            "midterm_score": -0.01,
+            "final_score": -0.02,
+            "assignments_avg": -0.03,
+            "quizzes_avg": -0.03,
+            "participation_score": -0.03,
+            "projects_score": -0.01,
+            "total_score": -0.02,
+            "study_hours_per_week": 0.02,
+            "extracurricular_activities": -0.0,
+            "internet_access_at_home": 0.01,
+            "stress_level_(1_10)": 0.01,
+            "sleep_hours_per_night": -0.03
+        },
+        "midterm_score": {
+            "age": 0.01,
+            "attendance_(%)": -0.01,
+            "midterm_score": 1.0,
+            "final_score": 0.0,
+            "assignments_avg": -0.01,
+            "quizzes_avg": -0.01,
+            "participation_score": -0.0,
+            "projects_score": 0.01,
+            "total_score": -0.0,
+            "study_hours_per_week": 0.0,
+            "extracurricular_activities": 0.01,
+            "internet_access_at_home": 0.0,
+            "stress_level_(1_10)": 0.02,
+            "sleep_hours_per_night": -0.0
+        },
+        "final_score": {
+            "age": -0.02,
+            "attendance_(%)": -0.02,
+            "midterm_score": 0.0,
+            "final_score": 1.0,
+            "assignments_avg": 0.01,
+            "quizzes_avg": 0.0,
+            "participation_score": 0.01,
+            "projects_score": -0.0,
+            "total_score": 0.01,
+            "study_hours_per_week": 0.01,
+            "extracurricular_activities": -0.0,
+            "internet_access_at_home": -0.01,
+            "stress_level_(1_10)": -0.0,
+            "sleep_hours_per_night": -0.01
+        },
+        "assignments_avg": {
+            "age": -0.03,
+            "attendance_(%)": -0.03,
+            "midterm_score": -0.01,
+            "final_score": 0.01,
+            "assignments_avg": 1.0,
+            "quizzes_avg": 0.01,
+            "participation_score": 0.01,
+            "projects_score": 0.01,
+            "total_score": 0.0,
+            "study_hours_per_week": 0.02,
+            "extracurricular_activities": -0.01,
+            "internet_access_at_home": 0.01,
+            "stress_level_(1_10)": 0.01,
+            "sleep_hours_per_night": 0.02
+        },
+        "quizzes_avg": {
+            "age": 0.01,
+            "attendance_(%)": -0.03,
+            "midterm_score": -0.01,
+            "final_score": 0.0,
+            "assignments_avg": 0.01,
+            "quizzes_avg": 1.0,
+            "participation_score": -0.01,
+            "projects_score": 0.01,
+            "total_score": 0.01,
+            "study_hours_per_week": 0.02,
+            "extracurricular_activities": 0.0,
+            "internet_access_at_home": 0.02,
+            "stress_level_(1_10)": 0.0,
+            "sleep_hours_per_night": 0.0
+        },
+        "participation_score": {
+            "age": -0.01,
+            "attendance_(%)": -0.03,
+            "midterm_score": -0.0,
+            "final_score": 0.01,
+            "assignments_avg": 0.01,
+            "quizzes_avg": -0.01,
+            "participation_score": 1.0,
+            "projects_score": -0.03,
+            "total_score": -0.03,
+            "study_hours_per_week": -0.0,
+            "extracurricular_activities": -0.0,
+            "internet_access_at_home": -0.01,
+            "stress_level_(1_10)": -0.01,
+            "sleep_hours_per_night": -0.01
+        },
+        "projects_score": {
+            "age": 0.0,
+            "attendance_(%)": -0.01,
+            "midterm_score": 0.01,
+            "final_score": -0.0,
+            "assignments_avg": 0.01,
+            "quizzes_avg": 0.01,
+            "participation_score": -0.03,
+            "projects_score": 1.0,
+            "total_score": -0.02,
+            "study_hours_per_week": 0.0,
+            "extracurricular_activities": 0.01,
+            "internet_access_at_home": 0.02,
+            "stress_level_(1_10)": -0.02,
+            "sleep_hours_per_night": -0.0
+        },
+        "total_score": {
+            "age": 0.02,
+            "attendance_(%)": -0.02,
+            "midterm_score": -0.0,
+            "final_score": 0.01,
+            "assignments_avg": 0.0,
+            "quizzes_avg": 0.01,
+            "participation_score": -0.03,
+            "projects_score": -0.02,
+            "total_score": 1.0,
+            "study_hours_per_week": -0.01,
+            "extracurricular_activities": 0.01,
+            "internet_access_at_home": -0.01,
+            "stress_level_(1_10)": 0.0,
+            "sleep_hours_per_night": 0.0
+        },
+        "study_hours_per_week": {
+            "age": 0.0,
+            "attendance_(%)": 0.02,
+            "midterm_score": 0.0,
+            "final_score": 0.01,
+            "assignments_avg": 0.02,
+            "quizzes_avg": 0.02,
+            "participation_score": -0.0,
+            "projects_score": 0.0,
+            "total_score": -0.01,
+            "study_hours_per_week": 1.0,
+            "extracurricular_activities": 0.01,
+            "internet_access_at_home": -0.01,
+            "stress_level_(1_10)": 0.0,
+            "sleep_hours_per_night": -0.0
+        },
+        "extracurricular_activities": {
+            "age": -0.01,
+            "attendance_(%)": -0.0,
+            "midterm_score": 0.01,
+            "final_score": -0.0,
+            "assignments_avg": -0.01,
+            "quizzes_avg": 0.0,
+            "participation_score": -0.0,
+            "projects_score": 0.01,
+            "total_score": 0.01,
+            "study_hours_per_week": 0.01,
+            "extracurricular_activities": 1.0,
+            "internet_access_at_home": -0.0,
+            "stress_level_(1_10)": -0.01,
+            "sleep_hours_per_night": -0.01
+        },
+        "internet_access_at_home": {
+            "age": 0.01,
+            "attendance_(%)": 0.01,
+            "midterm_score": 0.0,
+            "final_score": -0.01,
+            "assignments_avg": 0.01,
+            "quizzes_avg": 0.02,
+            "participation_score": -0.01,
+            "projects_score": 0.02,
+            "total_score": -0.01,
+            "study_hours_per_week": -0.01,
+            "extracurricular_activities": -0.0,
+            "internet_access_at_home": 1.0,
+            "stress_level_(1_10)": -0.0,
+            "sleep_hours_per_night": 0.0
+        },
+        "stress_level_(1_10)": {
+            "age": -0.0,
+            "attendance_(%)": 0.01,
+            "midterm_score": 0.02,
+            "final_score": -0.0,
+            "assignments_avg": 0.01,
+            "quizzes_avg": 0.0,
+            "participation_score": -0.01,
+            "projects_score": -0.02,
+            "total_score": 0.0,
+            "study_hours_per_week": 0.0,
+            "extracurricular_activities": -0.01,
+            "internet_access_at_home": -0.0,
+            "stress_level_(1_10)": 1.0,
+            "sleep_hours_per_night": 0.01
+        },
+        "sleep_hours_per_night": {
+            "age": -0.01,
+            "attendance_(%)": -0.03,
+            "midterm_score": -0.0,
+            "final_score": -0.01,
+            "assignments_avg": 0.02,
+            "quizzes_avg": 0.0,
+            "participation_score": -0.01,
+            "projects_score": -0.0,
+            "total_score": 0.0,
+            "study_hours_per_week": -0.0,
+            "extracurricular_activities": -0.01,
+            "internet_access_at_home": 0.0,
+            "stress_level_(1_10)": 0.01,
+            "sleep_hours_per_night": 1.0
+        }
+    },
+    "strong_correlations": {}
+}
