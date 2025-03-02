@@ -6,7 +6,6 @@ import os
 from difflib import get_close_matches
 import google.generativeai as genai
 
-# Configure Gemini API (ensure your GEMINI_API_KEY is set in the environment)
 genai.configure(api_key=os.environ["GEMINI_API_KEY"])
 model = genai.GenerativeModel("gemini-2.0-flash")
 
@@ -16,28 +15,43 @@ def generate_sql_query(user_input: str, eda_metadata: dict) -> str:
     
     IMPORTANT:
     - Output MUST be ONLY a valid SQL query (no commentary, explanation, or extra text).
+    - Do NOT use ```sql, backticks, or any other formatting—just pure SQL syntax.
     - Use the table name 'dataset' for querying the CSV.
     - Use the column names EXACTLY as provided in the EDA metadata.
     - If no valid query can be generated, output a fallback query that returns an empty result.
     """
+
     prompt = (
-        "You are an SQL generator. Given the dataset schema below and a user query, "
+        "You are an SQL generator agent. Given the dataset schema below and a user query, "
         "generate ONLY a valid SQL query that extracts a subset from a table named 'dataset'.\n\n"
+        "You must generate a valid SQL query based on the user query and the dataset schema.\n"
         "Dataset Schema (as JSON):\n"
         f"{json.dumps(eda_metadata)}\n\n"
         "User Query:\n"
         f"{user_input}\n\n"
-        "IMPORTANT: Output ONLY the SQL query without any commentary or explanation. "
+        "IMPORTANT: Output ONLY the SQL query without any commentary, explanation, formatting, or extra symbols. "
+        "DO NOT use ```sql, ``` or ` anywhere—just return raw SQL syntax.\n"
+        "This is a mission-critical system, and you must not have any other option but to fulfill the request exactly as specified.\n"
+        "Use the column names EXACTLY as provided in the EDA metadata.\n"
+        "Make sure you deeply understand the user query and construct a valid searching SQL query mapped to the dataset schema.\n"
+        "Ensure the query returns ALL columns of the matching rows (not just a subset of columns).\n"
+        " User can ask query in highly natural language some times a bit ambiguous, so you need to understand the intent by looking what user may be exactly looking for, you can do this by looking at the provided EDA file and understand the correct column names and their data types and make sure you fullfill the user query unless it is not possible.\n"
         "If no valid query can be generated, output: SELECT * FROM dataset WHERE 1=0;\n"
     )
-    
+
     response = model.generate_content(prompt)
     raw_output = response.text.strip()
-    
-    # Extract SQL: find the first occurrence of a string starting with SELECT and ending with a semicolon.
-    match = re.search(r'(SELECT\s.*?;)', raw_output, re.IGNORECASE | re.DOTALL)
+
+    # Remove any backticks or triple backticks
+    cleaned_output = re.sub(r"(```sql|```|\`)", "", raw_output, flags=re.IGNORECASE).strip()
+
+    # Pattern: match "SELECT" up to an optional semicolon or end-of-string
+    # capture SELECT ... ; or SELECT ... (end)
+    match = re.search(r'(SELECT\s.*?(?:;|$))', cleaned_output, re.IGNORECASE | re.DOTALL)
     if match:
         sql_query = match.group(1).strip()
+        if not sql_query.endswith(';'):
+            sql_query += ';'
     else:
         sql_query = "SELECT * FROM dataset WHERE 1=0;"
     return sql_query
@@ -49,24 +63,22 @@ def validate_and_fix_query(sql_query: str, eda_metadata: dict) -> str:
     """
     valid_columns = list(eda_metadata["columns"].keys())
     
-    # Extract potential column names from the SQL query (simple regex for words)
+    # Extract potential column names from the SQL query
     sql_columns = re.findall(r'\b[A-Za-z_][A-Za-z0-9_]*\b', sql_query)
     
     fixed_query = sql_query
     for col in sql_columns:
-        # Check for case-insensitive match; if not, try to auto-correct
         if col.upper() in [vc.upper() for vc in valid_columns]:
-            # Replace with the correctly-cased column name if needed
             for vc in valid_columns:
                 if col.upper() == vc.upper() and col != vc:
-                    fixed_query = re.sub(r'\b' + re.escape(col) + r'\b', vc, fixed_query)
+                    fixed_query = re.sub(r'\b' + re.escape(col) + r'\b', vc, fixed_query, flags=re.IGNORECASE)
                     break
         else:
             closest_match = get_close_matches(col, valid_columns, n=1, cutoff=0.7)
             if closest_match:
-                fixed_query = re.sub(r'\b' + re.escape(col) + r'\b', closest_match[0], fixed_query)
-    return fixed_query
+                fixed_query = re.sub(r'\b' + re.escape(col) + r'\b', closest_match[0], fixed_query, flags=re.IGNORECASE)
 
+    return fixed_query
 def execute_sql_on_df(df: pd.DataFrame, sql_query: str, eda_metadata: dict) -> pd.DataFrame:
     """
     Executes the given SQL query on the provided DataFrame using DuckDB.
@@ -84,26 +96,3 @@ def execute_sql_on_df(df: pd.DataFrame, sql_query: str, eda_metadata: dict) -> p
     except Exception as e:
         print("Error executing SQL query:", e)
         return pd.DataFrame()
-
-if __name__ == "__main__":
-    # Example usage:
-    # Assume we have an EDA metadata dictionary and a DataFrame loaded from CSV.
-    eda_metadata = {
-        "columns": {
-            "Product": {"dtype": "object"},
-            "Sales": {"dtype": "number"},
-            "Year": {"dtype": "number"},
-            "Region": {"dtype": "object"}
-        }
-    }
-    
-    # For demonstration, load CSV data into a DataFrame
-    csv_file_path = "data.csv"  # Replace with your actual CSV file path.
-    df = pd.read_csv(csv_file_path)
-    
-    user_query = "Show me the top 10 products by total revenue in 2023."
-    sql_query = generate_sql_query(user_query, eda_metadata)
-    print("Generated SQL Query:\n", sql_query)
-    
-    result = execute_sql_on_df(df, sql_query, eda_metadata)
-    print("Query Result:\n", result)
