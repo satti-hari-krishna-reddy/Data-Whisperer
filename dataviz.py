@@ -400,7 +400,6 @@ def generate_pre_questions(eda):
 
 
 def main():
-
     # Initialize session state
     if "numeric_figs" not in st.session_state:
         st.session_state.numeric_figs = []
@@ -416,10 +415,14 @@ def main():
         st.session_state.subset_eda = {}
     if "subset_df" not in st.session_state:
         st.session_state.subset_df = pd.DataFrame()
-
-
     if "data_peek_mode" not in st.session_state:
         st.session_state.data_peek_mode = False
+    if "df" not in st.session_state:
+        st.session_state.df = pd.DataFrame()
+    if "ai_insights" not in st.session_state:
+        st.session_state.ai_insights = ""
+    if "csv_upload" not in st.session_state:
+        st.session_state.csv_upload = False
 
     # Header
     col1, col2 = st.columns([1, 4])
@@ -431,7 +434,6 @@ def main():
                 <span style="color: white; font-size: 24px; font-weight: bold; text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);">DW</span>
             </div>
         ''', unsafe_allow_html=True)
-
     with col2:
         st.markdown('''
             <h1 style="font-size: 36px; font-weight: bold; color: #6200EA; margin-bottom: 8px;">
@@ -443,50 +445,56 @@ def main():
             unsafe_allow_html=True
         )
 
-    # eda_file = st.file_uploader("Upload EDA JSON file", type=["json"])
-    # csv_file = st.file_uploader("Upload CSV dataset", type=["csv"])
-
-    uploaded_file = st.file_uploader("Upload a CSV or Excel (.xlsx) file", type=["csv", "xlsx"])
+    col_upload, col_demo = st.columns([3, 1])
+    with col_upload:
+        uploaded_file = st.file_uploader("Upload a CSV or Excel (.xlsx) file", type=["csv", "xlsx"])
+    with col_demo:
+        st.write(" ")
+        st.write(" ")
+        st.write("Use demo csv file")
+        use_demo = st.button("Students_Grading_Dataset.csv", help="Load a local sample CSV")
+        if use_demo:
+            st.session_state.csv_upload = True
+        
+    st.session_state.df = None
     data_set_name = "dataset.csv"
-
-    if uploaded_file is not None:
+    if use_demo or st.session_state.csv_upload:
+        data_set_name = "Students_Grading_Dataset.csv"
+        try:
+            with open(data_set_name, "rb") as f:
+                st.session_state.df = read_and_validate_file(f)
+            if st.session_state.df is None:
+                st.error("Failed to load the demo CSV file.")
+        except Exception as e:
+            st.error(f"Error loading demo file: {e}")
+    elif uploaded_file is not None:
+        st.session_state.csv_upload = False
         file_name = uploaded_file.name.lower()
         data_set_name = file_name
-
-        df = None
-
         if file_name.endswith(".csv"):
-            df = read_and_validate_file(uploaded_file)
-            if df is not None:
-                st.success("CSV file loaded successfully!")
-            else:
+            st.session_state.df = read_and_validate_file(uploaded_file)
+            if st.session_state.df is None:
                 st.error("Failed to read the CSV file.")
-        
         elif file_name.endswith(".xlsx"):
-            # Let the user pick a sheet if multiple exist
             excel_file = pd.ExcelFile(uploaded_file)
             sheet_names = excel_file.sheet_names
-            
             if len(sheet_names) > 1:
                 st.info("Multiple sheets found. Please select one below.")
                 selected_sheet = st.selectbox("Select a sheet", sheet_names)
             else:
                 selected_sheet = sheet_names[0]
-            
-            df = read_and_validate_file(uploaded_file, sheet_name=selected_sheet)
-            if df is not None:
-                st.success(f"Excel file loaded successfully! Using sheet: {selected_sheet}")
-            else:
+            st.session_state.df = read_and_validate_file(uploaded_file, sheet_name=selected_sheet)
+            if st.session_state.df is None:
                 st.error("Failed to read the Excel file or invalid sheet selected.")
 
-        eda = enhanced_eda_json(df)
-
+    if st.session_state.df is not None:
+        eda = enhanced_eda_json(st.session_state.df)
         st.markdown("## :clipboard: Dataset Overview")
-        col_rows, col_cols, col_explorer, col_ppt = st.columns([1,1,1,1])
+        col_rows, col_cols, col_explorer, col_ppt = st.columns([1, 1, 1, 1])
         with col_rows:
-            st.metric("Rows", f"{df.shape[0]:,}")
+            st.metric("Rows", f"{st.session_state.df.shape[0]:,}")
         with col_cols:
-            st.metric("Columns", f"{df.shape[1]}")
+            st.metric("Columns", f"{st.session_state.df.shape[1]}")
 
         with col_explorer:
             if not st.session_state.data_peek_mode:
@@ -522,7 +530,7 @@ def main():
 
                     ppt_buffer = generate_eda_report_ppt(
                         eda_metadata=eda,
-                        df=df,
+                        df=st.session_state.df,
                         numeric_figs=st.session_state.numeric_figs,       
                         categorical_figs=st.session_state.categorical_figs,    
                         correlation_figs=st.session_state.correlation_figs,    
@@ -570,23 +578,23 @@ def main():
                 st.markdown("### :1234: Numerical Column Analysis")
                 for col, det in eda["columns"].items():
                     if "numeric_stats" in det:
-                        plot_numeric(col, det, df)
+                        plot_numeric(col, det, st.session_state.df)
             with tab2:
                 for col, det in eda["columns"].items():
                     if det.get("dtype", "").lower() == "object":
-                        plot_categorical(col, det, df)
+                        plot_categorical(col, det, st.session_state.df)
 
             with tab3:
-                plot_correlations(df, eda)
+                plot_correlations(st.session_state.df, eda)
 
             with tab4:
-                plot_time_series(df)
+                plot_time_series(st.session_state.df)
 
             with tab5:
                 st.markdown("### :mag: Outlier Detection")
                 for col, det in eda["columns"].items():
                     if "numeric_stats" in det and det.get("outlier_count", 0) > 0:
-                        fig = px.box(df, y=col, 
+                        fig = px.box(st.session_state.df, y=col, 
                                     title=f"{col.capitalize()} Outlier Analysis",
                                     template="plotly_dark")
                         fig.update_layout(
@@ -598,31 +606,17 @@ def main():
             
             with tab6:
                 st.subheader("🤖 AI Insights")
-                if "ai_insights" not in st.session_state:
-                    #get_gemini_response("Analyze dataset: " + json.dumps(eda))
-                    st.session_state.ai_insights = "hehe xD"
+                st.session_state.ai_insights = get_gemini_response("Imagine you are data analyst who are given an EDA report which now you have to give the summary of the EDA along with clear actionable insights to the non tech users in digestable way and here is dataset please analyse it: " + json.dumps(eda))
                 st.markdown(st.session_state.ai_insights)
             
             with tab7:
                 st.subheader("🤖 Ask AI")
+                
+                # Initialize session state variables
                 if "chat_history" not in st.session_state:
                     st.session_state.chat_history = []
-                if "selected_question" not in st.session_state:
-                    st.session_state.selected_question = None
 
-                if not st.session_state.chat_history and st.session_state.selected_question is None:
-                    st.markdown("Select a question to start the chat:")
-                    questions = generate_pre_questions(eda)
-                    q_cols = st.columns(len(questions))
-                    for i, q in enumerate(questions):
-                        if q_cols[i].button(q, key=f"q_{i}"):
-                            st.session_state.selected_question = q
-                            st.session_state.chat_history.append(("User", q))
-                            with st.spinner("Generating response..."):
-                                response = get_gemini_response("Dataset context: " + json.dumps(eda) + "\nQuestion: " + q)
-                            st.session_state.chat_history.append(("AI", response))
-                            st.rerun()
-
+        
                 for sender, msg in st.session_state.chat_history:
                     alignment_class = "user" if sender == "User" else "ai"
                     bubble_class = "chat-user" if sender == "User" else "chat-ai"
@@ -631,13 +625,17 @@ def main():
                         unsafe_allow_html=True
                     )
 
+                # Chat input form
                 with st.form(key="chat_form", clear_on_submit=True):
                     chat_input = st.text_input("Type your message here", key="chat_input")
                     submit_button = st.form_submit_button("Send")
+                    
                     if submit_button and chat_input:
                         st.session_state.chat_history.append(("User", chat_input))
                         with st.spinner("Generating response..."):
-                            response = get_gemini_response("Dataset context: " + json.dumps(eda) + "\nQuestion: " + chat_input)
+                            response = get_gemini_response(
+                                "Dataset context: " + json.dumps(eda) + "\nQuestion: " + chat_input
+                            )
                         st.session_state.chat_history.append(("AI", response))
                         st.rerun()
         
@@ -655,12 +653,12 @@ def main():
                 if user_query.strip():
                     sql_query = generate_sql_query(user_query, eda)
 
-                    st.session_state.subset_df = execute_sql_on_df(df, sql_query, eda)
+                    st.session_state.subset_df = execute_sql_on_df(st.session_state.df, sql_query, eda)
                     # clean the subset_df
                     st.session_state.subset_df = clean_data(st.session_state.subset_df)
                     st.session_state.subset_eda = enhanced_eda_json(st.session_state.subset_df)
 
-                    if not st.session_state.subset_df.empty:
+                    if st.session_state.subset_df and (not st.session_state.subset_df.empty):
                         st.markdown("### 🔍 **Filtered Data Subset**")
                         st.dataframe(st.session_state.subset_df, use_container_width=True)
                         st.markdown("---")
@@ -705,30 +703,13 @@ def main():
                         
                         with tab6:
                             st.subheader("🤖 AI Insights")
-                            if "ai_insights" not in st.session_state:
-                                #get_gemini_response("Analyze dataset: " + json.dumps(eda))
-                                st.session_state.ai_insights = get_gemini_response("Analyze dataset: " + json.dumps(st.session_state.subset_eda))
+                            st.session_state.ai_insights = get_gemini_response("Imagine you are data analyst who are given an EDA report of subset of a dataset which now you have to give the summary of the EDA along with clear actionable insights to the non tech users in digestable way and here is dataset please analyse it and also keep in mind what user asked this: " + user_query + "well you dont need to asnwer the user question explictly but your analyis should be given importance to what user may be asking and here is the subset :"+ json.dumps(st.session_state.subset_eda))
                             st.markdown(st.session_state.ai_insights)
-                        
+                    
                         with tab7:
                             st.subheader("🤖 Ask AI")
                             if "chat_history" not in st.session_state:
                                 st.session_state.chat_history = []
-                            if "selected_question" not in st.session_state:
-                                st.session_state.selected_question = None
-
-                            if not st.session_state.chat_history and st.session_state.selected_question is None:
-                                st.markdown("Select a question to start the chat:")
-                                questions = generate_pre_questions(st.session_state.subset_eda)
-                                q_cols = st.columns(len(questions))
-                                for i, q in enumerate(questions):
-                                    if q_cols[i].button(q, key=f"q_{i}"):
-                                        st.session_state.selected_question = q
-                                        st.session_state.chat_history.append(("User", q))
-                                        with st.spinner("Generating response..."):
-                                            response = get_gemini_response("Dataset context: " + json.dumps(eda) + "\nQuestion: " + q)
-                                        st.session_state.chat_history.append(("AI", response))
-                                        st.rerun()
 
                             for sender, msg in st.session_state.chat_history:
                                 alignment_class = "user" if sender == "User" else "ai"
