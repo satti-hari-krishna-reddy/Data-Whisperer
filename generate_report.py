@@ -1,10 +1,11 @@
-import io
-import datetime
-import re
 from pptx import Presentation
 from pptx.util import Inches, Pt
 from pptx.dml.color import RGBColor
 from pptx.enum.text import PP_ALIGN
+from pptx.shapes.shapetree import SlideShapes
+import io
+import re
+import datetime
 
 from utils import get_gemini_response
 
@@ -154,227 +155,216 @@ def generate_eda_report_ppt(
 
 
 
-    # Create the presentation
     prs = Presentation()
     prs.slide_width = Inches(13.33)
     prs.slide_height = Inches(7.5)
 
-    #### 1) Dark Slide Helper ####
     def add_dark_slide(prs):
-        slide_layout = prs.slide_layouts[6]  # blank
+        """Add dark-themed slide with proper background"""
+        slide_layout = prs.slide_layouts[6]  # Blank layout
         slide = prs.slides.add_slide(slide_layout)
-        shape = slide.shapes.add_shape(
-            autoshape_type_id=1,  # rectangle
-            left=Inches(0), top=Inches(0),
-            width=prs.slide_width, height=prs.slide_height
+        shapes: SlideShapes = slide.shapes
+        bg_shape = shapes.add_shape(
+            1,  # Rectangle
+            0, 0, 
+            prs.slide_width, prs.slide_height
         )
-        shape.fill.solid()
-        shape.fill.fore_color.rgb = RGBColor(26, 42, 58)  # #1A2A3A
-        shape.line.fill.background()
+        bg_shape.fill.solid()
+        bg_shape.fill.fore_color.rgb = RGBColor(26, 42, 58)  # Dark blue
+        bg_shape.line.fill.background()
         return slide
 
-    #### 2) Text Box Helper ####
-    def add_textbox(slide, left, top, width, height,
-                    text, font_size=24,
-                    color=RGBColor(250,250,250),
-                    align=PP_ALIGN.LEFT):
+    def add_textbox(slide, left, top, width, height, text, 
+                   font_size=24, color=RGBColor(250,250,250),
+                   align=PP_ALIGN.LEFT, bold=False, font_name='Calibri'):
+        """Add properly formatted textbox"""
         box = slide.shapes.add_textbox(left, top, width, height)
         tf = box.text_frame
         tf.word_wrap = True
         p = tf.paragraphs[0]
         p.text = text
         p.alignment = align
-        p.font.size = Pt(font_size)
-        p.font.color.rgb = color
+        
+        # Set font properties
+        font = p.font
+        font.size = Pt(font_size)
+        font.color.rgb = color
+        font.bold = bold
+        font.name = font_name
+        
         return box
 
-    #### 3) Hybrid Chunking: By Lines & Word Count ####
-    def chunk_text_hybrid(text, max_lines=15, max_words=140):
-        """
-        Splits text into chunks, each chunk having at most `max_lines` lines
-        and `max_words` total words. We treat each newline as a distinct line.
-
-        Steps:
-          1) Split the text by actual newlines -> lines
-          2) For each line, count words
-          3) Keep appending lines until we exceed max_lines or max_words
-          4) Start a new chunk
-
-        Returns a list of multiline strings (each chunk = one slide).
-        """
-
-        raw_lines = text.split('\n')
+    def chunk_text_spatially(text, max_lines=18, max_words=140, max_height=5.5):
+        """Split text considering lines, words, and visual height"""
+        lines = text.split('\n')
         chunks = []
-        chunk_lines = []
-        chunk_word_count = 0
+        current_chunk = []
+        current_lines = 0
+        current_words = 0
 
-        for line in raw_lines:
-            words_in_line = len(line.split())
-            # If adding this line would exceed lines or words, start a new chunk
-            if (len(chunk_lines) + 1 > max_lines) or (chunk_word_count + words_in_line > max_words):
-                # push current chunk
-                chunks.append("\n".join(chunk_lines))
-                chunk_lines = [line]
-                chunk_word_count = words_in_line
+        for line in lines:
+            line_words = len(line.split())
+            line_height = 0.3  # ~14pt font height
+            
+            if (current_lines + 1 > max_lines or
+                current_words + line_words > max_words or
+                len(current_chunk)*line_height > max_height):
+                
+                chunks.append("\n".join(current_chunk))
+                current_chunk = [line]
+                current_lines = 1
+                current_words = line_words
             else:
-                chunk_lines.append(line)
-                chunk_word_count += words_in_line
+                current_chunk.append(line)
+                current_lines += 1
+                current_words += line_words
 
-        # leftover
-        if chunk_lines:
-            chunks.append("\n".join(chunk_lines))
-
+        if current_chunk:
+            chunks.append("\n".join(current_chunk))
         return chunks
 
-    #### 4) Add Section ####
     def add_section(section_title, commentary_text, figs):
-        # chunk commentary
-        commentary_chunks = chunk_text_hybrid(commentary_text, max_lines=15, max_words=140)
-
-        # Create bullet slides for commentary
-        for idx, chunk in enumerate(commentary_chunks):
+        """Add section with commentary and figures"""
+        if not commentary_text.strip():
+            return
+            
+        chunks = chunk_text_spatially(commentary_text)
+        for idx, chunk in enumerate(chunks):
             slide = add_dark_slide(prs)
+            
+            # Title
             add_textbox(
                 slide,
-                Inches(0.5), Inches(0.3),
-                Inches(12), Inches(0.5),
+                Inches(0.7), Inches(0.5),
+                Inches(11.5), Inches(0.6),
                 text=section_title if idx == 0 else f"{section_title} (cont.)",
-                font_size=28
+                font_size=28,
+                bold=True,
+                font_name='Calibri Bold'
             )
+            
+            # Content
             add_textbox(
                 slide,
-                Inches(0.5), Inches(1.2),
-                Inches(12), Inches(5),
+                Inches(0.7), Inches(1.5),
+                Inches(11.5), Inches(5.0),
                 text=chunk,
-                font_size=18
+                font_size=16,
+                font_name='Calibri',
+                align=PP_ALIGN.LEFT
             )
-
-        # For each figure, add a new slide
+            
         for i, fig in enumerate(figs):
             slide = add_dark_slide(prs)
+            
+            # Figure title
             add_textbox(
                 slide,
-                Inches(0.5), Inches(0.3),
-                Inches(12), Inches(0.5),
-                text=f"{section_title} (Fig {i+1})",
-                font_size=24
+                Inches(0.7), Inches(0.5),
+                Inches(11.5), Inches(0.6),
+                text=f"{section_title} - Figure {i+1}",
+                font_size=24,
+                bold=True,
+                font_name='Calibri Bold'
             )
+            
+            # Figure image
             try:
-                img_bytes = fig.to_image(format="png")
-                left = (prs.slide_width - Inches(8)) / 2
-                top = Inches(1.3)
-                slide.shapes.add_picture(io.BytesIO(img_bytes), left, top, width=Inches(8))
+                img_bytes = fig.to_image(format="png", scale=2)
+                pic = slide.shapes.add_picture(
+                    io.BytesIO(img_bytes),
+                    left=Inches(0.7),
+                    top=Inches(1.5),
+                    width=Inches(11.5),
+                    height=Inches(5.0)
+                )
+                pic.width = Inches(11.5)
+                pic.height = Inches(5.0)
             except Exception as e:
-                err = str(e).lower()
-                if "kaleido" in err:
-                    msg = ("Could not export figure because kaleido is not installed.\n"
-                           "Install with: pip install -U kaleido")
-                else:
-                    msg = f"Error rendering figure {i+1}: {e}"
                 add_textbox(
                     slide,
-                    Inches(1), Inches(1.5),
-                    Inches(10), Inches(2),
-                    text=msg,
-                    font_size=16
+                    Inches(0.7), Inches(1.5),
+                    Inches(11.5), Inches(5.0),
+                    text=f"Error rendering figure: {str(e)}",
+                    font_size=16,
+                    color=RGBColor(255, 0, 0)
                 )
 
-    #### 5) Build Slides ####
-
-    # Title Slide
-    slide = add_dark_slide(prs)
+    # Title slide
+    title_slide = add_dark_slide(prs)
     add_textbox(
-        slide,
-        Inches(0.5), Inches(0.5),
-        Inches(12), Inches(1.0),
-        text="EDA Pro Analysis Report",
-        font_size=36, align=PP_ALIGN.CENTER
-    )
-    date_str = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
-    add_textbox(
-        slide,
+        title_slide,
         Inches(0.5), Inches(1.5),
         Inches(12), Inches(1.0),
-        text=f"Dataset: {dataset_name}\nGenerated on {date_str}",
-        font_size=18, align=PP_ALIGN.CENTER
+        text="EDA Analysis Report",
+        font_size=44,
+        bold=True,
+        font_name='Calibri Bold',
+        align=PP_ALIGN.LEFT
+    )
+    add_textbox(
+        title_slide,
+        Inches(0.5), Inches(2.8),
+        Inches(12), Inches(0.6),
+        text=f"Dataset: {dataset_name}\nGenerated: {datetime.datetime.now():%B %d, %Y}",
+        font_size=18,
+        font_name='Calibri Light',
+        align=PP_ALIGN.LEFT
     )
 
-    # Overview Slide
-    slide = add_dark_slide(prs)
+    # Dataset overview
+    overview_slide = add_dark_slide(prs)
     add_textbox(
-        slide,
-        Inches(0.5), Inches(0.3),
-        Inches(12), Inches(0.5),
+        overview_slide,
+        Inches(0.7), Inches(0.5),
+        Inches(11.5), Inches(0.6),
         text="Dataset Overview",
-        font_size=28
+        font_size=28,
+        bold=True,
+        font_name='Calibri Bold'
     )
-    row_count = df.shape[0]
-    col_count = df.shape[1]
-    lines = [f"Rows: {row_count}", f"Columns: {col_count}", ""]
-    if eda_metadata and "columns" in eda_metadata:
-        lines.append("Columns:")
-        for col_name in eda_metadata["columns"].keys():
-            lines.append(f"• {col_name}")
-    overview_text = "\n".join(lines)
+    
+    overview_text = f"Rows: {df.shape[0]}\nColumns: {df.shape[1]}"
+    if eda_metadata.get("columns"):
+        overview_text += "\n\nColumns:\n• " + "\n• ".join(eda_metadata["columns"].keys())
+        
     add_textbox(
-        slide,
-        Inches(0.5), Inches(1.2),
-        Inches(12), Inches(5),
+        overview_slide,
+        Inches(0.7), Inches(1.5),
+        Inches(11.5), Inches(5.0),
         text=overview_text,
-        font_size=18
+        font_size=16,
+        font_name='Calibri'
     )
 
-    # Numeric
+    # Add analysis sections
     add_section("Numeric Analysis", numeric_insights, numeric_figs)
-    # Categorical
     add_section("Categorical Analysis", categorical_insights, categorical_figs)
-    # Correlation
     add_section("Correlation Analysis", correlation_insights, correlation_figs)
-    # Time Series
     add_section("Time Series Analysis", time_series_insights, time_series_figs)
-    # Outliers
     add_section("Outlier Analysis", outlier_insights, outlier_figs)
 
-    # Overall Insights
-    from_texts = chunk_text_hybrid(overall_insights, max_lines=18, max_words=140)
-    for idx, chunk in enumerate(from_texts):
-        slide = add_dark_slide(prs)
-        add_textbox(
-            slide,
-            Inches(0.5), Inches(0.3),
-            Inches(12), Inches(0.5),
-            text="Overall Data Whisperer Insights" if idx == 0 else "Overall Data Whisperer Insights (cont.)",
-            font_size=28
-        )
-        add_textbox(
-            slide,
-            Inches(0.5), Inches(1.2),
-            Inches(12), Inches(5),
-            text=chunk,
-            font_size=18
-        )
-
-    # Conclusion Slide
-    slide = add_dark_slide(prs)
+    # Conclusion
+    conclusion_slide = add_dark_slide(prs)
     add_textbox(
-        slide,
-        Inches(0.5), Inches(0.3),
-        Inches(12), Inches(0.5),
+        conclusion_slide,
+        Inches(0.7), Inches(0.5),
+        Inches(11.5), Inches(0.6),
         text="Conclusion",
-        font_size=28
+        font_size=28,
+        bold=True,
+        font_name='Calibri Bold'
     )
     add_textbox(
-        slide,
-        Inches(0.5), Inches(1.2),
-        Inches(12), Inches(5),
-        text=(
-            "• This concludes the Data Whisperer analysis report.\n"
-            "• We hope these insights help guide your next steps!"
-        ),
-        font_size=18
+        conclusion_slide,
+        Inches(0.7), Inches(1.5),
+        Inches(11.5), Inches(5.0),
+        text="• Analysis successfully completed\n• Key insights highlighted\n• Next steps recommended",
+        font_size=18,
+        font_name='Calibri'
     )
 
-    # Save to BytesIO
+    # Save to buffer
     ppt_buffer = io.BytesIO()
     prs.save(ppt_buffer)
     ppt_buffer.seek(0)
