@@ -2,12 +2,14 @@ import streamlit as st
 import pandas as pd
 import plotly.express as px
 import json
-import re
+import deepnote_toolkit
 
 from smart_query import generate_sql_query, execute_sql_on_df
 from generate_report import generate_eda_report_ppt
 from clean_and_EDA_generate import enhanced_eda_json, clean_data, read_and_validate_file
 from utils import get_gemini_response
+
+
 
 # Set page configuration
 st.set_page_config(
@@ -16,6 +18,8 @@ st.set_page_config(
     layout="wide",
     initial_sidebar_state="expanded"
 )
+
+deepnote_toolkit.set_integration_env()
 
 numeric_figs = []
 categorical_figs = []
@@ -222,64 +226,148 @@ def plot_numeric(col, details, df):
             counts = details["histogram"].get("counts", [])
             if bins and counts:
                 df_hist = pd.DataFrame({"Bin": bins[:-1], "Count": counts})
-                fig = px.bar(df_hist, x="Bin", y="Count", 
-                            title=f"{col.capitalize()} Distribution",
-                            template="plotly_dark")
-                fig.update_layout(
-                    plot_bgcolor="#1A2A3A",
-                    paper_bgcolor="#1A2A3A",
-                    font_color="#FAFAFA"
+                fig = px.bar(
+                    df_hist, 
+                    x="Bin", 
+                    y="Count", 
+                    title=f"{col.capitalize()} Distribution",
+                    template="plotly_white"
                 )
+                fig.update_layout(
+                    plot_bgcolor="rgba(0,0,0,0)",
+                    paper_bgcolor="rgba(0,0,0,0)",
+                    font_color="#333333",
+                    bargap=0.3,
+                    bargroupgap=0.1
+                )
+                fig.update_traces(marker_color="#FF69B4")
                 st.session_state.numeric_figs.append(fig)
                 st.plotly_chart(fig, use_container_width=True)
             else:
-                fig = px.histogram(df, x=col, nbins=10, 
-                                title=f"{col.capitalize()} Distribution",
-                                template="plotly_dark")
-        
+                fig = px.histogram(
+                    df, 
+                    x=col, 
+                    nbins=10, 
+                    title=f"{col.capitalize()} Distribution",
+                    template="plotly_white"
+                )
+                fig.update_layout(
+                    plot_bgcolor="rgba(0,0,0,0)",
+                    paper_bgcolor="rgba(0,0,0,0)",
+                    font_color="#333333",
+                    bargap=0.3,
+                    bargroupgap=0.1
+                )
+                fig.update_traces(marker_color="#FF69B4")
                 st.session_state.numeric_figs.append(fig)
                 st.plotly_chart(fig, use_container_width=True)
         else:
-            fig = px.histogram(df, x=col, nbins=10, 
-                            title=f"{col.capitalize()} Distribution",
-                            template="plotly_dark")
+            fig = px.histogram(
+                df, 
+                x=col, 
+                nbins=10, 
+                title=f"{col.capitalize()} Distribution",
+                template="plotly_white"
+            )
+            fig.update_layout(
+                plot_bgcolor="rgba(0,0,0,0)",
+                paper_bgcolor="rgba(0,0,0,0)",
+                font_color="#333333",
+                bargap=0.3,
+                bargroupgap=0.1
+            )
+            fig.update_traces(marker_color="#FF69B4")
             st.session_state.numeric_figs.append(fig)
             st.plotly_chart(fig, use_container_width=True)
         
         if details.get("outlier_count", 0) > 0:
-            fig = px.box(df, y=col, 
-                        title=f"{col.capitalize()} Outliers",
-                        template="plotly_dark")
+            fig = px.box(
+                df, 
+                y=col, 
+                title=f"{col.capitalize()} Outliers",
+                template="plotly_white"
+            )
+            fig.update_layout(
+                plot_bgcolor="rgba(0,0,0,0)",
+                paper_bgcolor="rgba(0,0,0,0)",
+                font_color="#333333"
+            )
+            fig.update_traces(marker_color="#FF69B4", line=dict(color="#FF69B4"))
+            # Assuming outlier_figs is a global or session variable similar to numeric_figs
             outlier_figs.append(fig)
             st.plotly_chart(fig, use_container_width=True)
+
 
 def plot_categorical(col, details, df):
     with st.container():
         st.subheader(f":pie_chart: {col.capitalize()} Distribution")
+        # Define a custom color sequence with a beautiful pink accent and complementary hues.
+        custom_colors = ["#FF69B4", "#FF85C1", "#FF9EC6", "#FFB8CB", "#FFD2D0"]
+        
         if "top_categories" in details:
             data = details["top_categories"]
-            df_bar = pd.DataFrame(list(data.items()), 
-                                columns=["Category", "Count"])
+            df_bar = pd.DataFrame(list(data.items()), columns=["Category", "Count"])
             if len(data) <= 6:
-                fig = px.pie(df_bar, names="Category", values="Count",
-                            title=f"{col.capitalize()} Distribution",
-                            template="plotly_dark",
-                            hole=0.3)
+                # Create a pie chart for few categories
+                fig = px.pie(
+                    df_bar, 
+                    names="Category", 
+                    values="Count",
+                    title=f"{col.capitalize()} Distribution",
+                    template="plotly_white",
+                    hole=0.3,
+                    color_discrete_sequence=custom_colors
+                )
+                # Update layout for a modern look
+                fig.update_layout(
+                    plot_bgcolor="rgba(0,0,0,0)",
+                    paper_bgcolor="rgba(0,0,0,0)",
+                    font_color="#333333"
+                )
             else:
-                fig = px.bar(df_bar, x="Category", y="Count",
-                            title=f"Top {col.capitalize()} Categories",
-                            template="plotly_dark")
+                # Create a bar chart for many categories
+                fig = px.bar(
+                    df_bar, 
+                    x="Category", 
+                    y="Count",
+                    title=f"Top {col.capitalize()} Categories",
+                    template="plotly_white",
+                    color_discrete_sequence=custom_colors
+                )
+                fig.update_layout(
+                    plot_bgcolor="rgba(0,0,0,0)",
+                    paper_bgcolor="rgba(0,0,0,0)",
+                    font_color="#333333",
+                    bargap=0.3,
+                    bargroupgap=0.1
+                )
+                # For bar charts, if you want a single color accent:
+                fig.update_traces(marker_color="#FF69B4")
+                
             st.session_state.categorical_figs.append(fig)
             st.plotly_chart(fig, use_container_width=True)
         else:
             uniq = df[col].value_counts().nlargest(10)
-            df_bar = pd.DataFrame(uniq.items(), 
-                                columns=["Category", "Count"])
-            fig = px.bar(df_bar, x="Category", y="Count",
-                        title=f"Top 10 {col.capitalize()} Categories",
-                        template="plotly_dark")
+            df_bar = pd.DataFrame(uniq.items(), columns=["Category", "Count"])
+            fig = px.bar(
+                df_bar, 
+                x="Category", 
+                y="Count",
+                title=f"Top 10 {col.capitalize()} Categories",
+                template="plotly_white",
+                color_discrete_sequence=custom_colors
+            )
+            fig.update_layout(
+                plot_bgcolor="rgba(0,0,0,0)",
+                paper_bgcolor="rgba(0,0,0,0)",
+                font_color="#333333",
+                bargap=0.3,
+                bargroupgap=0.1
+            )
+            fig.update_traces(marker_color="#FF69B4")
             st.session_state.categorical_figs.append(fig)
             st.plotly_chart(fig, use_container_width=True)
+
 
 def plot_correlations(df, eda):
     with st.container():
@@ -367,29 +455,7 @@ def plot_time_series(df):
                 st.plotly_chart(fig, use_container_width=True)
 
 def generate_pre_questions(eda):
-    prompt = (
-        "Here is the dataset context: " + json.dumps(eda) + "\n"
-        "Analyze the dataset and generate exactly 5 concise, meaningful questions strictly related to its contents. "
-        "Ensure they are short, impactful, and directly related to the dataset's structure, variables, and insights. "
-        "Output them in JSON format as a list of strings, like this:\n"
-        '["Question 1", "Question 2", "Question 3", "Question 4", "Question 5"]'
-    )
 
-    result = get_gemini_response(prompt).strip()
-
-    # Regex to find the first JSON array in the text: [ ... ]
-    array_match = re.search(r'(\[\s*\".*?\])', result, re.DOTALL)
-    if array_match:
-        raw_json = array_match.group(1).strip()
-        try:
-            questions = json.loads(raw_json)
-            # Validate it's exactly 5 strings
-            if isinstance(questions, list) and len(questions) == 5 and all(isinstance(q, str) for q in questions):
-                return questions
-        except (json.JSONDecodeError, ValueError, TypeError):
-            pass
-
-    # Fallback: Provide default questions if the response is unreliable
     return [
         "What are the key trends in this dataset?",
         "Do you notice any significant outliers?",
@@ -427,39 +493,35 @@ def main():
     # Header
     col1, col2 = st.columns([1, 4])
     with col1:
-        st.markdown('''
-            <div style="width: 80px; height: 80px; background: linear-gradient(135deg, #6200EA, #3700B3); 
-                        border-radius: 50%; display: flex; align-items: center; justify-content: center; 
-                        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);">
-                <span style="color: white; font-size: 24px; font-weight: bold; text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);">DW</span>
-            </div>
-        ''', unsafe_allow_html=True)
+        st.markdown("")
     with col2:
         st.markdown('''
-            <h1 style="font-size: 36px; font-weight: bold; color: #6200EA; margin-bottom: 8px;">
-                Data Whisperer: Your AI-Powered Data Companion
+            <h1 style="font-size: 36px; font-weight: bold; color: #FF69B4; margin-bottom: 8px;">
+                🌀Data Whisperer: Your AI-Powered Data Companion
             </h1>
         ''', unsafe_allow_html=True)
         st.markdown(
-            "<p style='font-size:18px;color:#888;'>⚡ Transform raw data into actionable insights with zero effort—powered by AI, designed for you.</p>", 
+            "<p style='font-size:18px;color:#FF69B4;'>⚡ Transform raw data into actionable insights with zero effort—powered by AI, designed for you.</p>", 
             unsafe_allow_html=True
         )
 
-    col_upload, col_demo = st.columns([3, 1])
+
+    col_upload, dummy_col, col_demo = st.columns([1.5, 1, 1.5])
     with col_upload:
         uploaded_file = st.file_uploader("Upload a CSV or Excel (.xlsx) file", type=["csv", "xlsx"])
+
     with col_demo:
         st.write(" ")
         st.write(" ")
         st.write("Use demo csv file")
-        use_demo = st.button("Students_Grading_Dataset.csv", help="Load a local sample CSV")
+        use_demo = st.button("lung_disease_data.csv", help="Load a local sample CSV")
         if use_demo:
             st.session_state.csv_upload = True
         
     st.session_state.df = None
     data_set_name = "dataset.csv"
     if use_demo or st.session_state.csv_upload:
-        data_set_name = "Students_Grading_Dataset.csv"
+        data_set_name = "lung_disease_data.csv"
         try:
             with open(data_set_name, "rb") as f:
                 st.session_state.df = read_and_validate_file(f)
@@ -488,6 +550,7 @@ def main():
                 st.error("Failed to read the Excel file or invalid sheet selected.")
 
     if st.session_state.df is not None:
+        st.session_state.df = clean_data(st.session_state.df)
         eda = enhanced_eda_json(st.session_state.df)
         st.markdown("## :clipboard: Dataset Overview")
         col_rows, col_cols, col_explorer, col_ppt = st.columns([1, 1, 1, 1])
@@ -564,6 +627,13 @@ def main():
                     )
 
         if not st.session_state.data_peek_mode:
+
+            st.session_state.numeric_figs = []
+            st.session_state.categorical_figs = []
+            st.session_state.correlation_figs = []
+            st.session_state.time_series_figs = []
+            st.session_state.outlier_figs = []
+
             st.markdown("---")
             tab1, tab2, tab3, tab4, tab5, tab6, tab7 = st.tabs([
                 "📊 Numerical Analysis",
@@ -606,17 +676,52 @@ def main():
             
             with tab6:
                 st.subheader("🤖 AI Insights")
-                st.session_state.ai_insights = get_gemini_response("Imagine you are data analyst who are given an EDA report which now you have to give the summary of the EDA along with clear actionable insights to the non tech users in digestable way and here is dataset please analyse it: " + json.dumps(eda))
-                st.markdown(st.session_state.ai_insights)
-            
+                if "ai_insights" in st.session_state and st.session_state.ai_insights == "":
+                        eda_summary = json.dumps(eda)
+                        prompt = f"""
+                                You are a senior data analyst. Given the EDA results for {data_set_name}:
+
+                                1. Identify key trends (minimum 3) with statistical evidence
+                                2. Highlight actionable insights with clear business implications
+                                3. Find anomalies requiring investigation
+                                4. Suggest data-driven recommendations
+                                5. Explain technical concepts in simple terms
+
+                                EDA Analysis Results:
+                                {eda_summary}
+
+                                Specific requirements:
+                                - Use bullet points with clear headers
+                                - Prioritize business impact
+                                - Include confidence levels where applicable
+                                - use a around 8110 tokens if there is enough data we needed to provide indepth analysis so you needed to more tokens whereever needed
+                                - Suggest next analysis steps
+                                """
+                        st.session_state.ai_insights = get_gemini_response(prompt, "lite")
+                        st.markdown(st.session_state.ai_insights)
+                elif st.session_state.ai_insights != "":
+                    st.markdown(st.session_state.ai_insights)
+
             with tab7:
                 st.subheader("🤖 Ask AI")
-                
-                # Initialize session state variables
                 if "chat_history" not in st.session_state:
                     st.session_state.chat_history = []
+                if "selected_question" not in st.session_state:
+                    st.session_state.selected_question = None
 
-        
+                if not st.session_state.chat_history and st.session_state.selected_question is None:
+                    st.markdown("Select a question to start the chat:")
+                    questions = generate_pre_questions(eda)
+                    q_cols = st.columns(len(questions))
+                    for i, q in enumerate(questions):
+                        if q_cols[i].button(q, key=f"q_{i}"):
+                            st.session_state.selected_question = q
+                            st.session_state.chat_history.append(("User", q))
+                            with st.spinner("Generating response..."):
+                                response = get_gemini_response("Your role is a data analyst and answers user questions so try to be conversational and here is Dataset context: " + json.dumps(eda) + "\nQuestion: " + q, "lite")
+                            st.session_state.chat_history.append(("AI", response))
+                            st.rerun()
+
                 for sender, msg in st.session_state.chat_history:
                     alignment_class = "user" if sender == "User" else "ai"
                     bubble_class = "chat-user" if sender == "User" else "chat-ai"
@@ -625,21 +730,23 @@ def main():
                         unsafe_allow_html=True
                     )
 
-                # Chat input form
+                # Chat input form with enter-to-send and auto-clear
                 with st.form(key="chat_form", clear_on_submit=True):
                     chat_input = st.text_input("Type your message here", key="chat_input")
                     submit_button = st.form_submit_button("Send")
-                    
                     if submit_button and chat_input:
                         st.session_state.chat_history.append(("User", chat_input))
                         with st.spinner("Generating response..."):
-                            response = get_gemini_response(
-                                "Dataset context: " + json.dumps(eda) + "\nQuestion: " + chat_input
-                            )
+                            response = get_gemini_response("Your role is a data analyst and answers user questions so try to be conversational and here is Dataset context: " + json.dumps(eda) + "\nQuestion: " + chat_input, "flash")
                         st.session_state.chat_history.append(("AI", response))
                         st.rerun()
         
         else:
+            st.session_state.numeric_figs = []
+            st.session_state.categorical_figs = []
+            st.session_state.correlation_figs = []
+            st.session_state.time_series_figs = []
+            st.session_state.outlier_figs = []
             st.markdown("---")
             empty_col, main_col, empty_col2 = st.columns([1,2,1])
             with main_col:
@@ -658,7 +765,8 @@ def main():
                     st.session_state.subset_df = clean_data(st.session_state.subset_df)
                     st.session_state.subset_eda = enhanced_eda_json(st.session_state.subset_df)
 
-                    if st.session_state.subset_df and (not st.session_state.subset_df.empty):
+                    if st.session_state.subset_df is not None and not st.session_state.subset_df.empty:
+
                         st.markdown("### 🔍 **Filtered Data Subset**")
                         st.dataframe(st.session_state.subset_df, use_container_width=True)
                         st.markdown("---")
@@ -703,13 +811,48 @@ def main():
                         
                         with tab6:
                             st.subheader("🤖 AI Insights")
-                            st.session_state.ai_insights = get_gemini_response("Imagine you are data analyst who are given an EDA report of subset of a dataset which now you have to give the summary of the EDA along with clear actionable insights to the non tech users in digestable way and here is dataset please analyse it and also keep in mind what user asked this: " + user_query + "well you dont need to asnwer the user question explictly but your analyis should be given importance to what user may be asking and here is the subset :"+ json.dumps(st.session_state.subset_eda))
+                            subset_eda_summary = json.dumps(st.session_state.subset_eda)
+                            prompt = f"""
+                                    You are a senior data analyst. Given the EDA results for a subset of {data_set_name}:
+
+                                    1. Identify key trends (minimum 3) with statistical evidence
+                                    2. Highlight actionable insights with clear business implications
+                                    3. Find anomalies requiring investigation
+                                    4. Suggest data-driven recommendations
+                                    5. Explain technical concepts in simple terms
+
+                                    EDA Analysis Results:
+                                    ${subset_eda_summary}
+
+                                    Specific requirements:
+                                    - Use bullet points with clear headers
+                                    - Prioritize business impact
+                                    - Include confidence levels where applicable
+                                    - Suggest next analysis steps
+                                    - use a around 8110 tokens if there is enough data we needed to provide indepth analysis so you needed to more tokens whereever needed
+                                    """
+                            st.session_state.ai_insights = get_gemini_response(prompt, "flash")
                             st.markdown(st.session_state.ai_insights)
                     
                         with tab7:
                             st.subheader("🤖 Ask AI")
                             if "chat_history" not in st.session_state:
                                 st.session_state.chat_history = []
+                            if "selected_question" not in st.session_state:
+                                st.session_state.selected_question = None
+
+                            if not st.session_state.chat_history and st.session_state.selected_question is None:
+                                st.markdown("Select a question to start the chat:")
+                                questions = generate_pre_questions(eda)
+                                q_cols = st.columns(len(questions))
+                                for i, q in enumerate(questions):
+                                    if q_cols[i].button(q, key=f"q_{i}"):
+                                        st.session_state.selected_question = q
+                                        st.session_state.chat_history.append(("User", q))
+                                        with st.spinner("Generating response..."):
+                                            response = get_gemini_response("Dataset context: " + json.dumps(eda) + "\nQuestion: " + q, "lite")
+                                        st.session_state.chat_history.append(("AI", response))
+                                        st.rerun()
 
                             for sender, msg in st.session_state.chat_history:
                                 alignment_class = "user" if sender == "User" else "ai"
@@ -719,13 +862,14 @@ def main():
                                     unsafe_allow_html=True
                                 )
 
+                            # Chat input form with enter-to-send and auto-clear
                             with st.form(key="chat_form", clear_on_submit=True):
                                 chat_input = st.text_input("Type your message here", key="chat_input")
                                 submit_button = st.form_submit_button("Send")
                                 if submit_button and chat_input:
                                     st.session_state.chat_history.append(("User", chat_input))
                                     with st.spinner("Generating response..."):
-                                        response = get_gemini_response("Dataset context: " + json.dumps(eda) + "\nQuestion: " + chat_input)
+                                        response = get_gemini_response("Your role is a data analyst and answers user questions so try to be conversational and here is Dataset context: " + json.dumps(eda) + "\nQuestion: " + chat_input, "flash")
                                     st.session_state.chat_history.append(("AI", response))
                                     st.rerun()
 
@@ -735,7 +879,39 @@ def main():
                     st.warning("Please enter a query before running.")
 
     else:
-        st.warning(":warning: Please upload a valid CSV file or an Excel sheet to begin")
+        col1, col2 = st.columns([1.5, 3])
+        with col2:
+            st.markdown("")
+        with col1:
+            st.warning(":warning: Please upload a valid CSV file or an Excel sheet to begin")
 
 if __name__ == "__main__":
     main()
+
+st.markdown("""
+<style>
+.footer {
+    position: fixed;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    background-color: #1e1e1e;  /* Dark background */
+    color: #f0f0f0;  /* Light text */
+    text-align: center;
+    padding: 6px;  /* Increased padding slightly */
+    font-size: 14px;  /* Slightly larger font */
+    z-index: 999;
+    border-top: 1px solid #444;  /* Darker border */
+}
+.footer a {
+    color: #4ea8de;  /* Light blue link */
+    text-decoration: none;
+}
+.footer a:hover {
+    text-decoration: underline;
+}
+</style>
+<div class="footer">
+    👉 Learn more about Data Whisperer in the <a href="https://deepnote.com/app/something-8456/data-whisperer-dfad9c0a-7ad2-4b7a-aae7-043660da1b86" target="_blank">official documentation</a>.
+</div>
+""", unsafe_allow_html=True)
