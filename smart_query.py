@@ -3,11 +3,13 @@ import pandas as pd
 import json
 import re
 import os
-from difflib import get_close_matches
-import google.generativeai as genai
+import deepnote_toolkit
 
-genai.configure(api_key=os.environ["GEMINI_API_KEY"])
-model = genai.GenerativeModel("gemini-2.0-flash")
+from difflib import get_close_matches
+from utils import get_gemini_response
+
+deepnote_toolkit.set_integration_env()
+
 
 def generate_sql_query(user_input: str, eda_metadata: dict) -> str:
     """
@@ -32,15 +34,14 @@ def generate_sql_query(user_input: str, eda_metadata: dict) -> str:
         "IMPORTANT: Output ONLY the SQL query without any commentary, explanation, formatting, or extra symbols. "
         "DO NOT use ```sql, ``` or ` anywhere—just return raw SQL syntax.\n"
         "This is a mission-critical system, and you must not have any other option but to fulfill the request exactly as specified.\n"
-        "Use the column names EXACTLY as provided in the EDA metadata.\n"
+        "Use the column names EXACTLY as provided in the EDA metadata and where the column names may be small or capitals letters should be based on the column names you saw one EDA file that i sent and never and assume things about column names or their data type by your own but look at eda file and then decide in general all coloumn names are small lettered.\n"
         "Make sure you deeply understand the user query and construct a valid searching SQL query mapped to the dataset schema.\n"
         "Ensure the query returns ALL columns of the matching rows (not just a subset of columns).\n"
         " User can ask query in highly natural language some times a bit ambiguous, so you need to understand the intent by looking what user may be exactly looking for, you can do this by looking at the provided EDA file and understand the correct column names and their data types and make sure you fullfill the user query unless it is not possible.\n"
         "If no valid query can be generated, output: SELECT * FROM dataset WHERE 1=0;\n"
     )
 
-    response = model.generate_content(prompt)
-    raw_output = response.text.strip()
+    raw_output = get_gemini_response(prompt, "thinking")
 
     # Remove any backticks or triple backticks
     cleaned_output = re.sub(r"(```sql|```|\`)", "", raw_output, flags=re.IGNORECASE).strip()
@@ -54,6 +55,7 @@ def generate_sql_query(user_input: str, eda_metadata: dict) -> str:
             sql_query += ';'
     else:
         sql_query = "SELECT * FROM dataset WHERE 1=0;"
+    print("Generated SQL query:", sql_query)
     return sql_query
 
 def validate_and_fix_query(sql_query: str, eda_metadata: dict) -> str:
